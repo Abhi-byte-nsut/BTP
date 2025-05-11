@@ -1,108 +1,178 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
 <title>3-Phase Circuit Control</title>
 <style>
 body {
 font-family: Arial, sans-serif;
+margin: 0;
+background-color: #f2f2f2;
 text-align: center;
+}
+
+.header {
+font-size: 28px;
 padding: 20px;
-background-color: #f0f0f0;
+font-weight: bold;
 }
-h2 {
-color: #333;
+
+.container {
+display: flex;
+justify-content: space-around;
+padding: 20px;
 }
-.button-grid {
-display: grid;
-grid-template-columns: repeat(3, 120px);
-gap: 15px;
-justify-content: center;
-margin-top: 30px;
+
+.column {
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 30%;
+padding: 20px;
+border-radius: 12px;
 }
-.phase-button {
-padding: 15px;
-font-size: 16px;
+
+.red { background-color: #ffcccc; }
+.yellow { background-color: #ffffcc; }
+.green { background-color: #ccffcc; }
+
+.title {
+font-size: 18px;
+font-weight: bold;
+margin-bottom: 10px;
+}
+
+.circle-btn {
+width: 60px;
+height: 60px;
+margin: 10px;
+border-radius: 50%;
 border: none;
-border-radius: 8px;
+font-weight: bold;
+font-size: 16px;
 cursor: pointer;
-color: white;
 }
-.red {
-background-color: #e74c3c;
+
+.circuit {
+margin-top: 20px;
 }
-.yellow {
-background-color: #f1c40f;
-color: black;
+
+.line {
+width: 40px;
+height: 4px;
+background-color: gray;
+margin: 5px auto;
+transition: background-color 0.3s;
 }
-.green {
-background-color: #2ecc71;
+
+.active-line {
+background-color: green;
+}
+
+.bolt {
+font-size: 24px;
+visibility: hidden;
+}
+
+.visible {
+visibility: visible;
 }
 </style>
 </head>
 <body>
 
-<h2>3-Phase Circuit Control Panel</h2>
+<div class="header">3-Phase Circuit Control Panel</div>
 
-<div class="button-grid">
-<button class="phase-button red" onclick="sendToGitHub('Red Phase Switch 1 ON')">Red 1</button>
-<button class="phase-button red" onclick="sendToGitHub('Red Phase Switch 2 ON')">Red 2</button>
-<button class="phase-button red" onclick="sendToGitHub('Red Phase Switch 3 ON')">Red 3</button>
+<div class="container">
+<!-- RED PHASE -->
+<div class="column red">
+<div class="title">RED PHASE</div>
+<button class="circle-btn" onclick="toggle(0, 'Red Phase Switch 1')">1</button>
+<button class="circle-btn" onclick="toggle(1, 'Red Phase Switch 2')">2</button>
+<button class="circle-btn" onclick="toggle(2, 'Red Phase Switch 3')">3</button>
+<div class="circuit">
+<div id="line0" class="line"></div>
+<div id="bolt0" class="bolt">⚡</div>
+</div>
+</div>
 
-<button class="phase-button yellow" onclick="sendToGitHub('Yellow Phase Switch 1 ON')">Yellow 1</button>
-<button class="phase-button yellow" onclick="sendToGitHub('Yellow Phase Switch 2 ON')">Yellow 2</button>
-<button class="phase-button yellow" onclick="sendToGitHub('Yellow Phase Switch 3 ON')">Yellow 3</button>
+<!-- YELLOW PHASE -->
+<div class="column yellow">
+<div class="title">YELLOW PHASE</div>
+<button class="circle-btn" onclick="toggle(3, 'Yellow Phase Switch 1')">1</button>
+<button class="circle-btn" onclick="toggle(4, 'Yellow Phase Switch 2')">2</button>
+<button class="circle-btn" onclick="toggle(5, 'Yellow Phase Switch 3')">3</button>
+<div class="circuit">
+<div id="line1" class="line"></div>
+<div id="bolt1" class="bolt">⚡</div>
+</div>
+</div>
 
-<button class="phase-button green" onclick="sendToGitHub('Green Phase Switch 1 ON')">Green 1</button>
-<button class="phase-button green" onclick="sendToGitHub('Green Phase Switch 2 ON')">Green 2</button>
-<button class="phase-button green" onclick="sendToGitHub('Green Phase Switch 3 ON')">Green 3</button>
+<!-- GREEN PHASE -->
+<div class="column green">
+<div class="title">GREEN PHASE</div>
+<button class="circle-btn" onclick="toggle(6, 'Green Phase Switch 1')">1</button>
+<button class="circle-btn" onclick="toggle(7, 'Green Phase Switch 2')">2</button>
+<button class="circle-btn" onclick="toggle(8, 'Green Phase Switch 3')">3</button>
+<div class="circuit">
+<div id="line2" class="line"></div>
+<div id="bolt2" class="bolt">⚡</div>
+</div>
+</div>
 </div>
 
 <script>
-async function sendToGitHub(message) {
+let state = Array(9).fill(false);
+
+function toggle(index, message) {
+const phase = Math.floor(index / 3);
+state[index] = !state[index];
+
+// Show line and bolt if any switch in the phase is active
+const phaseStart = phase * 3;
+const active = state[phaseStart] || state[phaseStart + 1] || state[phaseStart + 2];
+
+document.getElementById('line' + phase).classList.toggle('active-line', active);
+document.getElementById('bolt' + phase).classList.toggle('visible', active);
+
+// Add message to GitHub
+sendToGitHub(`${message} toggled ${state[index] ? 'ON' : 'OFF'} at ${new Date().toLocaleTimeString()}`);
+}
+
+function sendToGitHub(newMessage) {
 const token = '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';
 const repo = 'Abhi-byte-nsut/BTP';
 const path = 'message.txt';
 const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
-try {
-const res = await fetch(url, {
+fetch(url, {
 headers: {
 Authorization: `token ${token}`,
 Accept: 'application/vnd.github.v3+json'
 }
-});
-
-const data = await res.json();
+})
+.then(res => res.json())
+.then(data => {
 const sha = data.sha;
-const current = atob(data.content || '');
-const updated = `${message} - ${new Date().toLocaleString()}\n${current}`;
+const existing = atob(data.content);
+const updated = `${newMessage}\n${existing}`;
 
-const result = await fetch(url, {
+fetch(url, {
 method: 'PUT',
 headers: {
 Authorization: `token ${token}`,
 Accept: 'application/vnd.github.v3+json'
 },
 body: JSON.stringify({
-message: `Update: ${message}`,
+message: `Update: ${newMessage}`,
 content: btoa(updated),
 sha: sha
 })
+})
+.then(() => console.log('Message sent to GitHub'))
+.catch(err => alert('Failed to update GitHub: ' + err));
 });
-
-if (result.ok) {
-alert('Message sent to GitHub!');
-} else {
-alert('Failed to update GitHub: ' + (await result.text()));
-}
-} catch (err) {
-console.error(err);
-alert('Error: ' + err.message);
-}
 }
 </script>
 
 </body>
 </html>
-
