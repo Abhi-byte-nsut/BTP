@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>3-Phase Circuit Control</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+background-color: #f2f2f2;
+text-align: center;
+}
+
+.header {
+font-size: 28px;
+padding: 20px;
+font-weight: bold;
+}
+
+.container {
+display: flex;
+justify-content: space-around;
+padding: 20px;
+}
+
+.column {
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 30%;
+padding: 20px;
+border-radius: 12px;
+}
+
+.red { background-color: #ffcccc; }
+.yellow { background-color: #ffffcc; }
+.green { background-color: #ccffcc; }
+
+.title {
+font-size: 18px;
+font-weight: bold;
+margin-bottom: 10px;
+}
+
+.circle-btn {
+width: 60px;
+height: 60px;
+margin: 10px;
+border-radius: 50%;
+border: none;
+font-weight: bold;
+font-size: 16px;
+cursor: pointer;
+}
+
+.circuit {
+margin-top: 20px;
+}
+
+.line {
+width: 40px;
+height: 4px;
+background-color: gray;
+margin: 5px auto;
+transition: background-color 0.3s;
+}
+
+.active-line {
+background-color: green;
+}
+
+.bolt {
+font-size: 24px;
+visibility: hidden;
+}
+
+.visible {
+visibility: visible;
+}
+</style>
+</head>
+<body>
+
+<div class="header">3-Phase Circuit Control Panel</div>
+
+<div class="container">
+<!-- RED PHASE -->
+<div class="column red">
+<div class="title">RED PHASE</div>
+<button class="circle-btn" onclick="toggle(0, 'Red Phase Switch 1')">1</button>
+<button class="circle-btn" onclick="toggle(1, 'Red Phase Switch 2')">2</button>
+<button class="circle-btn" onclick="toggle(2, 'Red Phase Switch 3')">3</button>
+<div class="circuit">
+<div id="line0" class="line"></div>
+<div id="bolt0" class="bolt">⚡</div>
+</div>
+</div>
+
+<!-- YELLOW PHASE -->
+<div class="column yellow">
+<div class="title">YELLOW PHASE</div>
+<button class="circle-btn" onclick="toggle(3, 'Yellow Phase Switch 1')">1</button>
+<button class="circle-btn" onclick="toggle(4, 'Yellow Phase Switch 2')">2</button>
+<button class="circle-btn" onclick="toggle(5, 'Yellow Phase Switch 3')">3</button>
+<div class="circuit">
+<div id="line1" class="line"></div>
+<div id="bolt1" class="bolt">⚡</div>
+</div>
+</div>
+
+<!-- GREEN PHASE -->
+<div class="column green">
+<div class="title">GREEN PHASE</div>
+<button class="circle-btn" onclick="toggle(6, 'Green Phase Switch 1')">1</button>
+<button class="circle-btn" onclick="toggle(7, 'Green Phase Switch 2')">2</button>
+<button class="circle-btn" onclick="toggle(8, 'Green Phase Switch 3')">3</button>
+<div class="circuit">
+<div id="line2" class="line"></div>
+<div id="bolt2" class="bolt">⚡</div>
+</div>
+</div>
+</div>
+
+<script>
+let state = Array(9).fill(false);
+
+function toggle(index, message) {
+const phase = Math.floor(index / 3);
+state[index] = !state[index];
+
+// Show line and bolt if any switch in the phase is active
+const phaseStart = phase * 3;
+const active = state[phaseStart] || state[phaseStart + 1] || state[phaseStart + 2];
+
+document.getElementById('line' + phase).classList.toggle('active-line', active);
+document.getElementById('bolt' + phase).classList.toggle('visible', active);
+
+// Add message to GitHub
+sendToGitHub(`${message} toggled ${state[index] ? 'ON' : 'OFF'} at ${new Date().toLocaleTimeString()}`);
+}
+
+function sendToGitHub(newMessage) {
+const token = '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';
+const repo = 'Abhi-byte-nsut/BTP';
+const path = 'message.txt';
+const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+fetch(url, {
+headers: {
+Authorization: `token ${token}`,
+Accept: 'application/vnd.github.v3+json'
+}
+})
+.then(res => res.json())
+.then(data => {
+const sha = data.sha;
+const existing = atob(data.content);
+const updated = `${newMessage}\n${existing}`;
+
+fetch(url, {
+method: 'PUT',
+headers: {
+Authorization: `token ${token}`,
+Accept: 'application/vnd.github.v3+json'
+},
+body: JSON.stringify({
+message: `Update: ${newMessage}`,
+content: btoa(updated),
+sha: sha
+})
+})
+.then(() => console.log('Message sent to GitHub'))
+.catch(err => alert('Failed to update GitHub: ' + err));
+});
+}
+</script>
+
+</body>
+</html>
