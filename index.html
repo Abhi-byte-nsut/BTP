@@ -72,7 +72,7 @@ body {
 <div class="header">3-Phase Circuit Control Panel</div>
 
 <div class="container">
-  <!-- RED PHASE -->
+
   <div class="column red">
     <div class="title">RED PHASE</div>
     <button class="circle-btn" onclick="toggle(0, 'Red Phase Switch 1')">1</button>
@@ -84,7 +84,7 @@ body {
     </div>
   </div>
 
-  <!-- YELLOW PHASE -->
+
   <div class="column yellow">
     <div class="title">YELLOW PHASE</div>
     <button class="circle-btn" onclick="toggle(3, 'Yellow Phase Switch 1')">1</button>
@@ -96,7 +96,7 @@ body {
     </div>
   </div>
 
-  <!-- GREEN PHASE -->
+ 
   <div class="column green">
     <div class="title">GREEN PHASE</div>
     <button class="circle-btn" onclick="toggle(6, 'Green Phase Switch 1')">1</button>
@@ -131,7 +131,7 @@ function toggle(index, message) {
 
   // Send to Firebase
   fetch("https://three-phase-control-default-rtdb.firebaseio.com//fault.json", {
-    method: "PUT",  // or POST if saving multiple entries
+    method: "POST", 
     body: JSON.stringify(data)
   }).then(res => {
     console.log("Data saved", data);
